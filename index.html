@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Leftwrite AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Libre+Baskerville:ital@1&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #FFFFFF;
+            color: #222222;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 0.5s ease-in-out 3s forwards;
+        }
+
+        .quote {
+            font-family: 'Libre Baskerville', serif;
+            font-style: italic;
+            font-size: clamp(18px, 4vw, 24px);
+            text-align: center;
+            padding: 0 clamp(1rem, 5vw, 2rem);
+            margin-bottom: 2rem;
+            color: #666;
+            max-width: min(600px, 90vw);
+            line-height: 1.6;
+        }
+
+        .author {
+            display: block;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .progress-container {
+            width: min(200px, 60vw);
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 100%;
+            height: 100%;
+            background: #DD6B20;
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: progress 2.5s ease-in-out forwards;
+        }
+
+        .substack-nav {
+            height: 60px;
+            border-bottom: 1px solid #E5E5E5;
+            display: flex;
+            align-items: center;
+            padding: 0 clamp(10px, 3vw, 20px);
+            justify-content: space-between;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .back-button {
+            color: #666;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .draft-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .draft-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+        }
+
+        .preview-button {
+            padding: 8px 16px;
+            background: #F5F5F5;
+            border-radius: 4px;
+            color: #222;
+            text-decoration: none;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .continue-button {
+            padding: 8px 16px;
+            background: #DD6B20;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .toolbar {
+            height: 40px;
+            border-bottom: 1px solid #E5E5E5;
+            display: flex;
+            align-items: center;
+            padding: 0 clamp(10px, 3vw, 20px);
+            gap: clamp(8px, 2vw, 20px);
+            background: white;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .toolbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .toolbar-button {
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .toolbar-button:hover {
+            background: #F5F5F5;
+        }
+
+        .editor-container {
+            max-width: min(700px, 95vw);
+            margin: 0 auto;
+            padding: clamp(20px, 5vw, 40px) clamp(10px, 5vw, 20px);
+        }
+
+        .word-count {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #F5F5F5;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            z-index: 98;
+        }
+
+        .title {
+            font-size: clamp(28px, 6vw, 46px);
+            font-weight: 600;
+            margin-bottom: clamp(6px, 2vw, 8px);
+            line-height: 1.2;
+            outline: none;
+        }
+
+        .subtitle {
+            font-size: clamp(18px, 4vw, 22px);
+            color: #666;
+            margin-bottom: clamp(30px, 8vw, 40px);
+            line-height: 1.4;
+            outline: none;
+        }
+
+        .main-content {
+            font-size: clamp(16px, 3vw, 18px);
+            line-height: 1.6;
+            color: #222;
+            margin-bottom: 20px;
+        }
+
+        .cta, .social-link {
+            color: #DD6B20;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .cta:hover, .social-link:hover {
+            text-decoration: underline;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background: #222;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; visibility: visible; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes progress {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .preview-button {
+                padding: 8px 12px;
+            }
+            
+            .continue-button {
+                padding: 8px 12px;
+            }
+            
+            .word-count {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .draft-status {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="quote">
+            "Writing is the painting of the voice"
+            <span class="author">Voltaire</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress"></div>
+        </div>
+    </div>
+
+    <nav class="substack-nav">
+        <div class="nav-left">
+            <a href="#" class="back-button">←</a>
+            <div class="draft-status">
+                <div class="draft-dot"></div>
+                Draft
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="preview-button">Preview</a>
+            <a href="#" class="continue-button">Continue</a>
+        </div>
+    </nav>
+
+    <div class="toolbar">
+        <button class="toolbar-button">Style ▾</button>
+        <button class="toolbar-button"><strong>B</strong></button>
+        <button class="toolbar-button"><em>I</em></button>
+        <button class="toolbar-button">S̲</button>
+        <button class="toolbar-button">&lt;&gt;</button>
+        <button class="toolbar-button">🔗</button>
+        <button class="toolbar-button">📷</button>
+        <button class="toolbar-button">🎧</button>
+        <button class="toolbar-button">📹</button>
+        <button class="toolbar-button">💬</button>
+        <button class="toolbar-button">Button ▾</button>
+        <button class="toolbar-button">More ▾</button>
+    </div>
+
+    <div class="editor-container">
+        <div id="text"></div>
+    </div>
+
+    <div class="word-count">0 words</div>
+
+    <script>
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        let currentText = '';
+        let wordCount = 0;
+        const textElement = document.getElementById('text');
+        const wordCountElement = document.querySelector('.word-count');
+
+        async function typeText(text, className, delay = 40) {
+            const element = document.createElement('div');
+            element.className = className;
+            textElement.appendChild(element);
+
+            for (let char of text) {
+                currentText += char;
+                element.innerHTML = currentText + '<span class="cursor"></span>';
+                
+                wordCount = currentText.trim().split(/\s+/).length;
+                wordCountElement.textContent = `${wordCount} words`;
+                
+                await sleep(delay);
+            }
+            return element;
+        }
+
+        async function init() {
+            await sleep(3000);
+
+            const title = await typeText('Leftwrite AI', 'title');
+            currentText = '';
+            
+            const subtitle = await typeText('Publishing assistant for Substack writers', 'subtitle');
+            currentText = '';
+
+            const content = await typeText("Our team knows the value of getting a second pair of eyes before you publish. So, we built Leftwrite: a publishing assistant tailored specifically to your style, your voice & your audience. Leftwrite learns from you, and writes with you, not for you.", 'main-content');
+            currentText = '';
+
+            await sleep(1000);
+            
+            const cta1 = await typeText("Got an idea for a feature? ", 'main-content');
+            cta1.innerHTML += '<a href="http://insigh.to" class="cta">Share it with us</a><br><br>';
+            currentText = '';
+
+            const cta2 = await typeText("Ready to write better? ", 'main-content');
+            cta2.innerHTML += '<a href="#" class="cta">Download the Chrome extension</a><br><br>';
+            currentText = '';
+
+            const footer = await typeText("Made with ❤️ by ", 'main-content');
+            footer.innerHTML += '<a href="https://x.com/teadejuyigbe" class="social-link" target="_blank">t18e</a>';
+        }
+
+        init();
+    </script>
+</body>
+</html>
