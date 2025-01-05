@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <title>Leftwrite AI</title>
+    <title>Pubbler | Publishing assistant</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Libre+Baskerville:ital@1&display=swap');
         
@@ -350,27 +350,27 @@
         async function init() {
             await sleep(3000);
 
-            const title = await typeText('Leftwrite AI', 'title');
+            const title = await typeText('Meet Pubbler', 'title');
             currentText = '';
             
             const subtitle = await typeText('Publishing assistant for Substack writers', 'subtitle');
             currentText = '';
 
-            const content = await typeText("Leftwrite provides inline feedback on flow, readability, and style as you write, acting like a 'second pair of eyes.' It adapts to your writing style and publication needs by learning from previous posts. You can accept or reject suggestions, and it uses this input to improve its feedback over time.", 'main-content');
+            const content = await typeText("Pubbler provides inline feedback on flow, readability, and style as you write, acting like a 'second pair of eyes.' It adapts to your writing style and publication needs by learning from previous posts. You can accept or reject suggestions, and it uses this input to improve its feedback over time.", 'main-content');
             currentText = '';
 
             await sleep(1000);
             
             const cta1 = await typeText("Got an idea for a feature? ", 'main-content');
-            cta1.innerHTML += '<a href="https://insigh.to/b/leftwrite-ai-feature-requests" class="cta">Let us know!</a><br><br>';
+            cta1.innerHTML += '<a href="https://insigh.to/b/pubbler-feature-requests" class="cta">Let us know!</a><br><br>';
             currentText = '';
 
             const cta2 = await typeText("Ready to write better? ", 'main-content');
-            cta2.innerHTML += '<a href="https://leftwrite.xyz/" class="cta">Join our early access waitlist</a><br><br>';;
+            cta2.innerHTML += '<a href="https://pubbler.xyz/" class="cta">Join our early access waitlist</a><br><br>';;
             currentText = '';
 
             const footer = await typeText("Follow for updates 🧡 from", 'main-content');
-            footer.innerHTML += '<a href="https://x.com/leftwriteai" class="social-link" target="_blank">our team</a>';
+            footer.innerHTML += '<a href="https://x.com/pubblerpro" class="social-link" target="_blank">our team</a>';
         }
 
         init();
